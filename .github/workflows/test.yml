@@ -1,13 +1,14 @@
-name: Run Unit Tests
+name: CI Pipeline - Python App
 
 on: [push]
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -15,7 +16,15 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt || true
+        run: pip install -r requirements.txt
 
       - name: Run unittests
         run: python -m unittest discover
+
+      - name: Lint with pylint
+        run: |
+          pip install pylint
+          pylint simple_math.py test_simple_math.py
+
+      - name: Build Docker image
+        run: docker build -t simplemath-app .
